@@ -1,6 +1,6 @@
+import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_meedu/ui.dart';
 
 class DeliveryListScreen extends StatelessWidget {
   static const name = 'delivery-list-screen';
@@ -28,13 +28,15 @@ class _DeliveryListState extends State<DeliveryList> {
   @override
   Widget build(BuildContext context) {
 
+    deliveryProvider.read.getFirebaseDeliveries();
+
     return Scaffold(
       //backgroundColor: const Color.fromARGB(255, 184, 194, 194),
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => Future.sync(
-            () => print('Se refresca'),
+            () => deliveryProvider.read.getFirebaseDeliveries(),
           ),
 
           child: const Padding(
