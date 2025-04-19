@@ -1,5 +1,8 @@
+import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_meedu/ui.dart';
+
 
 
 class DeliveryListScreen extends StatelessWidget {
@@ -16,6 +19,7 @@ class DeliveryListScreen extends StatelessWidget {
 }
 
 class DeliveryList extends StatefulWidget {
+  
   const DeliveryList({super.key,});
 
   @override
@@ -24,52 +28,283 @@ class DeliveryList extends StatefulWidget {
 
 class _DeliveryListState extends State<DeliveryList> {
   final ScrollController scrollController = ScrollController();
+  late Future<void> _deliveriesFuture;
+
+  bool multipleSelection = false;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _deliveriesFuture = deliveryProvider.read.getFirebaseDeliveries();
+  }
 
-    deliveryProvider.read.getFirebaseDeliveries();
+  @override
+  Widget build(BuildContext context)  {
 
-    return Scaffold(
-      //backgroundColor: const Color.fromARGB(255, 184, 194, 194),
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => Future.sync(
-            () => deliveryProvider.read.getFirebaseDeliveries(),
-          ),
+    return FutureBuilder(
+      future: _deliveriesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          child: const Padding(
-            padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+        return Scaffold(
+          //backgroundColor: const Color.fromARGB(255, 184, 194, 194),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          body: SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await deliveryProvider.read.getFirebaseDeliveries();
+                setState(() {
+                  _deliveriesFuture = Future.value(); // Para evitar recarga innecesaria
+                });
+              },
 
-            child: Column(
-              children: [
-                Row(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+
+                child: Column(
                   children: [
-                    Text(
-                      "Entregas",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    )
+                    const Row(
+                      children: [
+                        Text(
+                          "Entregas",
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Entrega múltiple', style: TextStyle(fontSize: 16)),
+                          Switch(
+                            value: multipleSelection,
+                            onChanged: (bool value) {
+                              setState(() {
+                                multipleSelection = value;
+                                if(!value) deliveryProvider.read.deleteSelectedDeliveries();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Expanded(
+                      child: Consumer(
+                        builder: (context, ref, child){
+                          final data = ref.watch(deliveryProvider);
+                          final deliveryList = data.getDeliveryList;
+
+                          if (deliveryList != null && deliveryList.isNotEmpty) {
+
+                            return ListView.builder(
+                              controller: scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: deliveryList.length,
+                              itemBuilder: (context, index){
+                                final delivery = deliveryList[index];
+
+                                return InkWell(
+                                  /* onTap: (){
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return ProductChecklistScreen(
+                                            delivery: delivery,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }, */
+
+                                  child: DeliveryCard(
+                                    deliveryEntity: delivery,
+                                    index: index + 1,
+                                    multipleSelection: multipleSelection,
+                                  ),
+
+                                );
+
+                              },
+                            );
+
+                          }else if (deliveryList != null && deliveryList.isEmpty) {
+                            return const Center(
+                              child: Text('No hay entregas.'),
+                            );
+                          }else {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                        }
+                      ),
+                    ),
+                    
                   ],
                 ),
+              ),
 
-                SizedBox(height: 15),
-
-                /* Expanded(
-                  child: Consumer(
-
-                  ),
-                ), */
-                
-              ],
             ),
           ),
+        );
 
-        ),
-      ),
+        
+      },
     );
 
   }
 
+}
+
+class DeliveryCard extends StatelessWidget {
+  final DeliveryEntity deliveryEntity;
+  final int index;
+  final bool multipleSelection;
+
+  const DeliveryCard({
+    super.key,
+    required this.deliveryEntity,
+    required this.index,
+    required this.multipleSelection,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedList = deliveryProvider.read.getSelectedDeliveryList;
+    final isChecked = selectedList?.any((e) => e.id == deliveryEntity.id) ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: ListTile(
+            
+            leading: SizedBox(
+              height: 200,
+              child: Column(
+                children: [
+                  Flexible(
+                    child: Image.asset("assets/images/delivery_image.png", height: 100, width: 100),
+                  ),
+                ],
+              ),
+            ),
+
+            title: Text(
+              deliveryEntity.customerName,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 5),
+                Text(
+                  deliveryEntity.address,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+
+                deliveryEntity.status == "pending"?
+                const Text(
+                    'PENDIENTE',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red),
+                  ) :
+                  const Text(
+                    'LISTO',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+
+              ],
+            ),
+
+            /* trailing:  multipleSelection && deliveryEntity.status == "pending"
+              ? Checkbox(
+                  //value: selectedDeliveries.contains(deliveryEntity.id),
+                  value: false,
+                  onChanged: (bool? newValue) {
+                    deliveryProvider.read.selectDelivery(deliveryEntity);
+                  },
+                )
+              : null, */
+
+            trailing:  multipleSelection && deliveryEntity.status == "pending"
+              ? DeliveryCheckWidget(
+                  delivery: deliveryEntity,
+                  isChecked: isChecked,
+                )
+              : null,
+
+          ),
+
+        ),
+      ),
+
+    );
+
+  }
+}
+
+//CHECK BOX COMPONENT
+class DeliveryCheckWidget extends StatefulWidget {
+  final DeliveryEntity delivery;
+  final bool isChecked;
+
+  const DeliveryCheckWidget({
+    super.key,
+    required this.delivery,
+    required this.isChecked
+  });
+
+  @override
+  State<DeliveryCheckWidget> createState() => _DeliveryCheckWidgetState();
+}
+
+class _DeliveryCheckWidgetState extends State<DeliveryCheckWidget> {
+  bool isSelected = false;
+
+  @override
+  void initState(){
+    super.initState();
+    isSelected = widget.isChecked;
+  }
+
+  void _onChanged(bool? value) {
+    setState(() {
+      isSelected = value ?? false;
+    });
+
+    if (isSelected) {
+      deliveryProvider.read.selectDelivery(widget.delivery);
+    } else {
+      deliveryProvider.read.unselectDelivery(widget.delivery);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Checkbox(
+      value: isSelected,
+      onChanged: _onChanged,
+    );
+  }
 }
 
