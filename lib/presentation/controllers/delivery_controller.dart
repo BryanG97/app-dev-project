@@ -54,16 +54,19 @@ class DeliveryController extends SimpleNotifier {
   //Method to save selected
   selectDelivery(DeliveryEntity delivery){
     _selectedDeliveriesList.add(delivery);
+    notify();
   }
   
   //Method to delete selected
   unselectDelivery(DeliveryEntity delivery){
     _selectedDeliveriesList.removeWhere((d) => d.id == delivery.id);
+    notify();
   }
   
   //Method to deleted selected
   deleteSelectedDeliveries(){
     _selectedDeliveriesList = [];
+    notify();
   }
 
 }

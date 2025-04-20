@@ -1,5 +1,7 @@
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
+import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_detail_screen.dart';
+import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
 
@@ -61,20 +63,67 @@ class _DeliveryListState extends State<DeliveryList> {
               },
 
               child: Padding(
-                padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
 
                 child: Column(
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Text(
+                        const Text(
                           "Entregas",
                           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        )
+                        ),
+
+                        const SizedBox(width: 200),
+
+                        multipleSelection ? 
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final data = ref.watch(deliveryProvider);
+                            final selectedCount = data.getSelectedDeliveryList?.length ?? 0;
+                          
+                            return GestureDetector(
+                              onTap: (){
+                                if(selectedCount > 0){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return const MultipleDeliveryScreen();
+                                      },
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Stack(
+                                alignment: Alignment.topLeft,
+                                children: [
+                                  //const Icon(Icons.delivery_dining, size: 28),
+                                  Image.asset("assets/images/delivery_image.png", height: 40, width: 40),
+                                  if (selectedCount > 0)
+                                  
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        '$selectedCount',
+                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }
+                        ): const SizedBox(height: 40),
+
+
                       ],
                     ),
 
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 5),
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -111,18 +160,17 @@ class _DeliveryListState extends State<DeliveryList> {
                                 final delivery = deliveryList[index];
 
                                 return InkWell(
-                                  /* onTap: (){
+                                  onTap: (){
+                                    !multipleSelection?
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return ProductChecklistScreen(
-                                            delivery: delivery,
-                                          );
+                                          return const DeliveryDetailScreen();
                                         },
                                       ),
-                                    );
-                                  }, */
+                                    ):null;
+                                  },
 
                                   child: DeliveryCard(
                                     deliveryEntity: delivery,
