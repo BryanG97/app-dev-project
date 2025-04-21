@@ -7,6 +7,7 @@ class DeliveryEntity {
   final String latitude;
   final String longitude;
   final String status;
+  double ?markerHue;
   
   DeliveryEntity({
     required this.id,
@@ -16,6 +17,7 @@ class DeliveryEntity {
     required this.latitude, 
     required this.longitude,
     required this.status,
+    this.markerHue,
   });
 
 }

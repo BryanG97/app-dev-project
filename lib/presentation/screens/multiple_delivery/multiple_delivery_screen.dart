@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:intl/intl.dart';
 
 class MultipleDeliveryScreen extends StatelessWidget {
   static const name = 'multiple-delivery-screen';
@@ -34,13 +35,77 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
 
   final Set<Polyline> _polylines = {};
 
+  final List<Marker> _markers = [];
+  late BitmapDescriptor _customInitMarker;
+
   final LatLng start = LatLng(-0.257338, -78.530707);
   final LatLng end = LatLng(-0.230000, -78.520000);
 
   @override
   void initState() {
     super.initState();
-    _setPolyline();
+    _initializeMapElements();
+  }
+  
+  void _initializeMapElements() async {
+    await _loadCustomIcons();
+    _setPolyline(); // Se llama después de cargar íconos
+  }
+
+  Future<void> _loadCustomIcons() async {
+    _customInitMarker = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(48, 48)), 
+      'assets/images/driver_mark.png',
+    );
+
+    setState(() {
+      _markers.clear();
+      var deliveryList = deliveryProvider.read.getSelectedDeliveryList;
+
+      final List<double> availableHues = [
+        BitmapDescriptor.hueRed,
+        BitmapDescriptor.hueBlue,
+        BitmapDescriptor.hueCyan,
+        BitmapDescriptor.hueAzure,
+        BitmapDescriptor.hueGreen,
+        BitmapDescriptor.hueMagenta,
+        BitmapDescriptor.hueOrange,
+        BitmapDescriptor.hueRose,
+        BitmapDescriptor.hueViolet,
+        BitmapDescriptor.hueYellow,
+      ];
+      availableHues.shuffle();
+
+      if (deliveryList == null || deliveryList.isEmpty) {
+        deliveryList = [];
+      }
+
+      //Init point
+      _markers.add(
+        Marker(
+          markerId: MarkerId(start.toString()),
+          icon: _customInitMarker,
+          position: start
+        ),
+      );
+
+
+      
+      for(int i = 0; i < deliveryList.length; i++){
+        final LatLng position = LatLng(double.parse(deliveryList[i].latitude), double.parse(deliveryList[i].longitude));
+        deliveryList[i].markerHue = availableHues[i % availableHues.length]; 
+        setState(() {
+          _markers.add(
+            Marker(
+              markerId: MarkerId(position.toString()),
+              icon: BitmapDescriptor.defaultMarkerWithHue(deliveryList?[i].markerHue??0.0),
+              position: position
+            ),
+          );
+        });
+      }
+
+    });
   }
 
   void _setPolyline() async{
@@ -49,11 +114,21 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
 
     const String googleAPIKey = 'AIzaSyBuh38UKClQrLoqhTsazqdcw_rYppZVDxs';
 
+    var deliveryList = deliveryProvider.read.getSelectedDeliveryList ?? [];
+
+    List<PolylineWayPoint> waypoints = deliveryList.map((delivery) {
+      return PolylineWayPoint(
+        location: "${delivery.latitude},${delivery.longitude}",
+        stopOver: true,
+      );
+    }).toList();
+
     final PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleAPIKey,
       PointLatLng(start.latitude, start.longitude),
       PointLatLng(end.latitude, end.longitude),
       travelMode: TravelMode.driving,
+      wayPoints: waypoints,
     );
 
     if (result.points.isNotEmpty) {
@@ -68,6 +143,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
           width: 5,
           points: polylineCoordinates,
         ));
+
       });
     } else {
       print('Error obteniendo la ruta: ${result.errorMessage}');
@@ -103,12 +179,13 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                 ),
 
                 SizedBox(
-                  height: 380,
+                  height: 410,
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(
                       target: start, // Latitud/longitud de ejemplo (Lima)
-                      zoom: 11.5,
+                      zoom: 12,
                     ),
+                    markers: Set.from(_markers),
                     myLocationEnabled: true,
                     zoomControlsEnabled: true,
                     polylines: _polylines,
@@ -192,53 +269,57 @@ class DeliveryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = HSVColor.fromAHSV(1, deliveryEntity.markerHue??0.0, 1, 1).toColor();
 
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ListTile(
-            
-            leading: SizedBox(
-              height: 200,
-              child: Column(
-                children: [
-                  Flexible(
-                    child: Image.asset("assets/images/delivery_image.png", height: 100, width: 100),
-                  ),
-                ],
+        elevation: 2,
+        child: Row(
+          children: [
+            // Línea vertical a la izquierda
+            Container(
+              width: 12, // grosor de la franja
+              height: 71, // ajusta si necesitas más alto
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
               ),
             ),
-
-            title: Text(
-              deliveryEntity.customerName,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
             
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 5),
-                Text(
-                  deliveryEntity.address,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      deliveryEntity.customerName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "${deliveryEntity.address}  | ${DateFormat('dd-MM-yyyy HH:mm').format(deliveryEntity.deliveryDate)}",
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                    
+                  ],
                 ),
-
-              ],
+              ),
             ),
-
-          ),
-
+          ],
         ),
       ),
-
     );
-
   }
 }

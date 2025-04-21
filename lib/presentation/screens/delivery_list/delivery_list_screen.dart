@@ -229,7 +229,7 @@ class DeliveryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedList = deliveryProvider.read.getSelectedDeliveryList;
     final isChecked = selectedList?.any((e) => e.id == deliveryEntity.id) ?? false;
-
+final color = HSVColor.fromAHSV(1, deliveryEntity.markerHue??0.0, 1, 1).toColor();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Card(
