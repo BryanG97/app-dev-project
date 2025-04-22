@@ -7,7 +7,10 @@ class DeliveryEntity {
   final String latitude;
   final String longitude;
   final String status;
+  final String phoneNumber;
   double ?markerHue;
+
+   List<ProductListEntity>? productList;
   
   DeliveryEntity({
     required this.id,
@@ -17,7 +20,20 @@ class DeliveryEntity {
     required this.latitude, 
     required this.longitude,
     required this.status,
+    required this.phoneNumber,
     this.markerHue,
+    this.productList,
+  });
+
+}
+
+class ProductListEntity {
+  String productName;
+  String quantity;
+
+  ProductListEntity({
+    required this.productName, 
+    required this.quantity, 
   });
 
 }

@@ -136,7 +136,7 @@ class _DeliveryListState extends State<DeliveryList> {
                             onChanged: (bool value) {
                               setState(() {
                                 multipleSelection = value;
-                                if(!value) deliveryProvider.read.deleteSelectedDeliveries();
+                                if(!value) deliveryProvider.read.deleteMultipleSelectedDeliveries();
                               });
                             },
                           ),
@@ -158,6 +158,7 @@ class _DeliveryListState extends State<DeliveryList> {
                               itemCount: deliveryList.length,
                               itemBuilder: (context, index){
                                 final delivery = deliveryList[index];
+                                //deliveryProvider.read.deleteSelectedDeliveries();
 
                                 return InkWell(
                                   onTap: (){
@@ -166,7 +167,9 @@ class _DeliveryListState extends State<DeliveryList> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return const DeliveryDetailScreen();
+                                          deliveryProvider.read.deleteSimpleSelectedDeliveries();
+                                          deliveryProvider.read.selectSimpleDelivery(delivery);
+                                          return const MultipleDelivery();
                                         },
                                       ),
                                     ):null;
@@ -229,7 +232,7 @@ class DeliveryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedList = deliveryProvider.read.getSelectedDeliveryList;
     final isChecked = selectedList?.any((e) => e.id == deliveryEntity.id) ?? false;
-final color = HSVColor.fromAHSV(1, deliveryEntity.markerHue??0.0, 1, 1).toColor();
+
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Card(
@@ -284,16 +287,6 @@ final color = HSVColor.fromAHSV(1, deliveryEntity.markerHue??0.0, 1, 1).toColor(
               ],
             ),
 
-            /* trailing:  multipleSelection && deliveryEntity.status == "pending"
-              ? Checkbox(
-                  //value: selectedDeliveries.contains(deliveryEntity.id),
-                  value: false,
-                  onChanged: (bool? newValue) {
-                    deliveryProvider.read.selectDelivery(deliveryEntity);
-                  },
-                )
-              : null, */
-
             trailing:  multipleSelection && deliveryEntity.status == "pending"
               ? DeliveryCheckWidget(
                   delivery: deliveryEntity,
@@ -341,9 +334,9 @@ class _DeliveryCheckWidgetState extends State<DeliveryCheckWidget> {
     });
 
     if (isSelected) {
-      deliveryProvider.read.selectDelivery(widget.delivery);
+      deliveryProvider.read.selectMultipleDelivery(widget.delivery);
     } else {
-      deliveryProvider.read.unselectDelivery(widget.delivery);
+      deliveryProvider.read.unselectMultipleDelivery(widget.delivery);
     }
   }
 

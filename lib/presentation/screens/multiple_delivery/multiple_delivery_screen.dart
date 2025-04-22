@@ -225,7 +225,9 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) {
-                                      return const DeliveryDetailScreen();
+                                      return DeliveryDetailScreen(
+                                        delivery: delivery,
+                                      );
                                     },
                                   ),
                                 );

@@ -29,6 +29,17 @@ class DeliveryController extends SimpleNotifier {
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
+        
+        //To read delivery products
+        final productSnapshot = await doc.reference.collection('PR01').get();
+
+        final products = productSnapshot.docs.map((productDoc) {
+          final productData = productDoc.data();
+          return ProductListEntity(
+            productName: productData['productName'],
+            quantity: productData['quantity'],
+          );
+        }).toList();
 
         final delivery = DeliveryEntity(
           id: data['id'],
@@ -38,6 +49,8 @@ class DeliveryController extends SimpleNotifier {
           latitude: data['latitude'],
           longitude: data['longitude'],
           status: data['status'],
+          phoneNumber: data['phoneNumber'],
+          productList: products
           // Agrega aquí todos los campos que tenga tu `DeliveryEntity`
         );
 
@@ -52,21 +65,30 @@ class DeliveryController extends SimpleNotifier {
   }
 
   //Method to save selected
-  selectDelivery(DeliveryEntity delivery){
+  selectMultipleDelivery(DeliveryEntity delivery){
     _selectedDeliveriesList.add(delivery);
     notify();
   }
   
   //Method to delete selected
-  unselectDelivery(DeliveryEntity delivery){
+  unselectMultipleDelivery(DeliveryEntity delivery){
     _selectedDeliveriesList.removeWhere((d) => d.id == delivery.id);
     notify();
   }
   
   //Method to deleted selected
-  deleteSelectedDeliveries(){
+  deleteMultipleSelectedDeliveries(){
     _selectedDeliveriesList = [];
     notify();
   }
 
+  //Method to save selected
+  selectSimpleDelivery(DeliveryEntity delivery){
+    _selectedDeliveriesList.add(delivery);
+  }
+
+  //Method to deleted selected
+  deleteSimpleSelectedDeliveries(){
+    _selectedDeliveriesList = [];
+  }
 }
