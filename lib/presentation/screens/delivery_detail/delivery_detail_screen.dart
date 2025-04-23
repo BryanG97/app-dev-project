@@ -1,9 +1,12 @@
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
+import 'package:app_dev_project/presentation/screens/delivery_product/delivery_product_screen.dart';
+import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
 import 'package:app_dev_project/presentation/widgets/custom_button.dart';
 import 'package:app_dev_project/presentation/widgets/icon_action_whatsapp_widget.dart';
 import 'package:app_dev_project/presentation/widgets/icon_action_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
   static const name = 'delivery-detail-screen';
@@ -39,7 +42,7 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
               Row(
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => context.goNamed(MultipleDeliveryScreen.name),
                       icon: const Icon(Icons.arrow_back_ios),
                     ),
                     Text(
@@ -199,16 +202,24 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
           height: 60,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 5),
-            child: 
-
-                CustomButton(
-                  label: "Continuar",
-                  fontSizeText: 17,
-                  color: Theme.of(context).colorScheme.primary,
-                  onTap: () async{
-                    
-                  },
-                ),
+            child: CustomButton(
+              label: "Entregar",
+              fontSizeText: 17,
+              color: Theme.of(context).colorScheme.primary,
+              onTap: () async{
+                /* Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return DeliveryProductScreen(
+                        delivery: widget.delivery,
+                      );
+                    },
+                  ),
+                ); */
+                context.goNamed(DeliveryProductScreen.name, extra: widget.delivery);
+              },
+            ),
 
           ),
         ),

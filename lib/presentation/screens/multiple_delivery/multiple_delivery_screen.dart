@@ -1,8 +1,10 @@
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
 import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_detail_screen.dart';
+import 'package:app_dev_project/presentation/widgets/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:intl/intl.dart';
@@ -168,7 +170,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => context.goNamed(CustomBottomNavigationBar.name),
                       icon: const Icon(Icons.arrow_back_ios),
                     ),
                     const Text(
@@ -221,16 +223,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
 
                             return InkWell(
                               onTap: (){
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return DeliveryDetailScreen(
-                                        delivery: delivery,
-                                      );
-                                    },
-                                  ),
-                                );
+                                context.goNamed(DeliveryDetailScreen.name, extra: delivery);
                               },
 
                               child: DeliveryCard(

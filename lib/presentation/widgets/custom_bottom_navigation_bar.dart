@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluid_bottom_nav_bar/fluid_bottom_nav_bar.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
-  static const name = 'custom-navigation-bar';
+  static const String name = 'custom-navigation-bar';
   const CustomBottomNavigationBar({super.key});
 
   @override

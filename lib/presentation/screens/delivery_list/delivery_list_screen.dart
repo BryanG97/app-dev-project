@@ -4,6 +4,7 @@ import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_de
 import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
+import 'package:go_router/go_router.dart';
 
 
 
@@ -85,14 +86,7 @@ class _DeliveryListState extends State<DeliveryList> {
                             return GestureDetector(
                               onTap: (){
                                 if(selectedCount > 0){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return const MultipleDeliveryScreen();
-                                      },
-                                    ),
-                                  );
+                                  context.goNamed(MultipleDeliveryScreen.name);
                                 }
                               },
                               child: Stack(
@@ -162,17 +156,11 @@ class _DeliveryListState extends State<DeliveryList> {
 
                                 return InkWell(
                                   onTap: (){
-                                    !multipleSelection?
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          deliveryProvider.read.deleteSimpleSelectedDeliveries();
-                                          deliveryProvider.read.selectSimpleDelivery(delivery);
-                                          return const MultipleDelivery();
-                                        },
-                                      ),
-                                    ):null;
+                                    if (!multipleSelection) {
+                                      deliveryProvider.read.deleteSimpleSelectedDeliveries();
+                                      deliveryProvider.read.selectSimpleDelivery(delivery);
+                                      context.goNamed(MultipleDeliveryScreen.name);
+                                    }
                                   },
 
                                   child: DeliveryCard(
