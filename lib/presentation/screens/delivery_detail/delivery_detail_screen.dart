@@ -1,7 +1,10 @@
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/screens/delivery_product/delivery_product_screen.dart';
 import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
+import 'package:app_dev_project/presentation/widgets/custom_bottom_navigation_bar.dart';
 import 'package:app_dev_project/presentation/widgets/custom_button.dart';
+import 'package:app_dev_project/presentation/widgets/icon_action_delivered_detaill_widget.dart';
+import 'package:app_dev_project/presentation/widgets/icon_action_map_address_widget.dart';
 import 'package:app_dev_project/presentation/widgets/icon_action_whatsapp_widget.dart';
 import 'package:app_dev_project/presentation/widgets/icon_action_widget.dart';
 import 'package:flutter/material.dart';
@@ -42,13 +45,34 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
               Row(
                   children: [
                     IconButton(
-                      onPressed: () => context.goNamed(MultipleDeliveryScreen.name),
+                      onPressed: () =>{
+                        if(widget.delivery.status == "pending"){
+                          context.goNamed(MultipleDeliveryScreen.name, extra:false)
+                        }else{
+                          context.goNamed(CustomBottomNavigationBar.name)
+                        }
+                      },
                       icon: const Icon(Icons.arrow_back_ios),
                     ),
                     Text(
-                      "Orden N° ${widget.delivery.id}",
+                      "Orden N° ${widget.delivery.deliveryId} ",
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
+                    
+                    Text(
+                      "(${widget.delivery.status=="pending"
+                        ? "PENDIENTE"
+                        : widget.delivery.status=="delivered"
+                        ? "ENTREGADO"
+                        : "NO ENTREGADO"})",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, 
+                      color: widget.delivery.status=="pending"
+                        ? Colors.red 
+                        : widget.delivery.status=="delivered"
+                        ?Colors.green
+                        : Colors.orange),
+                    ),
+
                     Expanded(child: Container()),
               Image.asset("assets/images/delivery_image.png", height: 40, width: 40),
                   ],
@@ -80,13 +104,22 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    /* IconActionMap(
-                      iconData: Icons.location_on,
-                      active: true,
-                      longitude: this.widget.contentEntity.longitudEntrega!,
-                      latitude: this.widget.contentEntity.latitudEntrega!,
-                    ),
-                    const SizedBox(width: 10),*/
+
+                    if(widget.delivery.status == "delivered")
+                      IconActionDeliveredDetail(
+                        iconData: Icons.remove_red_eye_rounded,
+                        active: true,
+                        delivery: widget.delivery,
+                      ),
+                      const SizedBox(width: 10),
+                      IconActionMapAddress(
+                        iconData: Icons.location_on,
+                        active: true,
+                        delivery: widget.delivery,
+                      ),
+                    
+
+                    const SizedBox(width: 10),
                     ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: phoneNumbers.length,
@@ -198,31 +231,24 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
           ),
         ),
 
-        bottomNavigationBar: SizedBox(
-          height: 60,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 5),
-            child: CustomButton(
-              label: "Entregar",
-              fontSizeText: 17,
-              color: Theme.of(context).colorScheme.primary,
-              onTap: () async{
-                /* Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return DeliveryProductScreen(
-                        delivery: widget.delivery,
-                      );
-                    },
-                  ),
-                ); */
-                context.goNamed(DeliveryProductScreen.name, extra: widget.delivery);
-              },
-            ),
+        //if(widget.delivery.status == "pending")
+        bottomNavigationBar: widget.delivery.status == "pending"
+          ? SizedBox(
+            height: 60,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 5),
+              child: CustomButton(
+                label: "Entregar",
+                fontSizeText: 17,
+                color: Theme.of(context).colorScheme.primary,
+                onTap: () async{
+                  context.goNamed(DeliveryProductScreen.name, extra: widget.delivery);
+                },
+              ),
 
-          ),
-        ),
+            ),
+          )
+        : const SizedBox(height: 60,),
         
       )
     );

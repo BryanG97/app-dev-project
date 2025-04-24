@@ -11,20 +11,32 @@ import 'package:intl/intl.dart';
 
 class MultipleDeliveryScreen extends StatelessWidget {
   static const name = 'multiple-delivery-screen';
+  
+  final bool isOnlyView;
 
-  const MultipleDeliveryScreen({super.key});
+  const MultipleDeliveryScreen({
+    super.key,
+    required this.isOnlyView
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: MultipleDelivery(),
+    return Scaffold(
+      body: MultipleDelivery(
+        isOnlyView: isOnlyView,
+      ),
     );
   }
 }
 
 class MultipleDelivery extends StatefulWidget {
   
-  const MultipleDelivery({super.key,});
+  final bool isOnlyView;
+
+  const MultipleDelivery({
+    super.key,
+    required this.isOnlyView
+  });
 
   @override
   State<MultipleDelivery> createState() => _MultipleDeliveryState();
@@ -51,14 +63,19 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
   
   void _initializeMapElements() async {
     await _loadCustomIcons();
-    _setPolyline(); // Se llama después de cargar íconos
+
+    if(!widget.isOnlyView){
+      _setPolyline(); // Se llama después de cargar íconos
+    }
   }
 
   Future<void> _loadCustomIcons() async {
-    _customInitMarker = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(48, 48)), 
-      'assets/images/driver_mark.png',
-    );
+    if(!widget.isOnlyView){
+      _customInitMarker = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(48, 48)), 
+        'assets/images/driver_mark.png',
+      );
+    }
 
     setState(() {
       _markers.clear();
@@ -83,15 +100,15 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
       }
 
       //Init point
-      _markers.add(
-        Marker(
-          markerId: MarkerId(start.toString()),
-          icon: _customInitMarker,
-          position: start
-        ),
-      );
-
-
+      if(!widget.isOnlyView){
+        _markers.add(
+          Marker(
+            markerId: MarkerId(start.toString()),
+            icon: _customInitMarker,
+            position: start
+          ),
+        );
+      }
       
       for(int i = 0; i < deliveryList.length; i++){
         final LatLng position = LatLng(double.parse(deliveryList[i].latitude), double.parse(deliveryList[i].longitude));
@@ -170,7 +187,14 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () => context.goNamed(CustomBottomNavigationBar.name),
+                      onPressed: () {
+                        if(widget.isOnlyView){
+                          final selectedDelivery = deliveryProvider.read.getSelectedDeliveryList;
+                          context.goNamed(DeliveryDetailScreen.name, extra:selectedDelivery![0]);
+                        }else{
+                          context.goNamed(CustomBottomNavigationBar.name);
+                        }
+                      },
                       icon: const Icon(Icons.arrow_back_ios),
                     ),
                     const Text(
@@ -181,7 +205,17 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                 ),
 
                 SizedBox(
-                  height: 410,
+                  //height: 410,
+                  child: Text(
+                    widget.isOnlyView? "Ubicación de entrega": "Ruta de entregas",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                SizedBox(
+                  height: widget.isOnlyView? 600 : 410,
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(
                       target: start, // Latitud/longitud de ejemplo (Lima)
@@ -204,41 +238,43 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
 
                 const SizedBox(height: 12),
 
-                Expanded(
-                  child: Consumer(
-                    builder: (context, ref, child){
-                      final data = ref.watch(deliveryProvider);
-                      final deliveryList = data.getSelectedDeliveryList;
+                widget.isOnlyView
+                  ? const SizedBox()
+                  : Expanded(
+                    child: Consumer(
+                      builder: (context, ref, child){
+                        final data = ref.watch(deliveryProvider);
+                        final deliveryList = data.getSelectedDeliveryList;
 
-                      if (deliveryList == null || deliveryList.isEmpty) {
-                        return const Center(child: Text("No hay entregas seleccionadas"));
+                        if (deliveryList == null || deliveryList.isEmpty) {
+                          return const Center(child: Text("No hay entregas seleccionadas"));
+                        }
+
+                        return ListView.builder(
+                          controller: scrollController,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: deliveryList.length,
+                            itemBuilder: (context, index){
+                              final delivery = deliveryList[index];
+
+                              return InkWell(
+                                onTap: (){
+                                  context.goNamed(DeliveryDetailScreen.name, extra: delivery);
+                                },
+
+                                child: DeliveryCard(
+                                  deliveryEntity: delivery,
+                                  index: index + 1,
+                                ),
+
+                              );
+
+                            }
+                        );
+
                       }
-
-                      return ListView.builder(
-                        controller: scrollController,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: deliveryList.length,
-                          itemBuilder: (context, index){
-                            final delivery = deliveryList[index];
-
-                            return InkWell(
-                              onTap: (){
-                                context.goNamed(DeliveryDetailScreen.name, extra: delivery);
-                              },
-
-                              child: DeliveryCard(
-                                deliveryEntity: delivery,
-                                index: index + 1,
-                              ),
-
-                            );
-
-                          }
-                      );
-
-                    }
+                    ),
                   ),
-                ),
 
               ],
           ),   

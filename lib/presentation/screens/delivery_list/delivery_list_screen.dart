@@ -86,7 +86,7 @@ class _DeliveryListState extends State<DeliveryList> {
                             return GestureDetector(
                               onTap: (){
                                 if(selectedCount > 0){
-                                  context.goNamed(MultipleDeliveryScreen.name);
+                                  context.goNamed(MultipleDeliveryScreen.name, extra: false);
                                 }
                               },
                               child: Stack(
@@ -157,9 +157,15 @@ class _DeliveryListState extends State<DeliveryList> {
                                 return InkWell(
                                   onTap: (){
                                     if (!multipleSelection) {
-                                      deliveryProvider.read.deleteSimpleSelectedDeliveries();
-                                      deliveryProvider.read.selectSimpleDelivery(delivery);
-                                      context.goNamed(MultipleDeliveryScreen.name);
+                                        deliveryProvider.read.deleteSimpleSelectedDeliveries();
+                                        deliveryProvider.read.selectSimpleDelivery(delivery);
+
+                                      if(delivery.status == "pending"){
+                                        context.goNamed(MultipleDeliveryScreen.name, extra: false);
+                                      }else{
+                                        context.goNamed(DeliveryDetailScreen.name, extra: delivery);
+                                      }
+
                                     }
                                   },
 
@@ -219,7 +225,7 @@ class DeliveryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedList = deliveryProvider.read.getSelectedDeliveryList;
-    final isChecked = selectedList?.any((e) => e.id == deliveryEntity.id) ?? false;
+    final isChecked = selectedList?.any((e) => e.deliveryId == deliveryEntity.deliveryId) ?? false;
 
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
@@ -258,20 +264,33 @@ class DeliveryCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
 
-                deliveryEntity.status == "pending"?
-                const Text(
+                //deliveryEntity.status == "pending"?
+                if(deliveryEntity.status == "pending")
+                  const Text(
                     'PENDIENTE',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red),
-                  ) :
+                  ),
+                
+                
+                if(deliveryEntity.status == "delivered")
                   const Text(
-                    'LISTO',
+                    'ENTREGADO',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green),
                   ),
-
+                
+                
+                if(deliveryEntity.status == "noDelivered")
+                  const Text(
+                    'NO ENTREGADO',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
+                  ),              
+              
               ],
             ),
 

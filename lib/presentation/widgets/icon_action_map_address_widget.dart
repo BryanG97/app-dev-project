@@ -1,0 +1,53 @@
+import 'package:app_dev_project/domain/entities/delivery_entity.dart';
+import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
+import 'package:app_dev_project/presentation/screens/delivery_product/delivery_product_screen.dart';
+import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class IconActionMapAddress extends StatelessWidget {
+  final IconData iconData;
+  final double? size, iconSize;
+  final bool active;
+  final DeliveryEntity delivery;
+
+  const IconActionMapAddress({
+    super.key,
+    required this.iconData,
+    this.size = 50,
+    this.iconSize = 22,
+    this.active = false,
+    required this.delivery,
+  });
+
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        /* deliveryProvider.read.deleteSimpleSelectedDeliveries();
+        deliveryProvider.read.selectSimpleDelivery(delivery); */
+        context.goNamed(MultipleDeliveryScreen.name, extra: true);
+      },
+      child: Container(
+        height: size,
+        width: size,
+        decoration: BoxDecoration(
+          color: active ? Theme.of(context).colorScheme.primary : Color.fromRGBO(95, 92, 92, 1),
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              iconData,
+              color: Colors.white,
+              size: iconSize,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

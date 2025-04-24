@@ -1,6 +1,7 @@
 
 class DeliveryEntity {
-  final String id;
+  final String documentId;
+  final String deliveryId;
   final String address;
   final String customerName;
   final DateTime deliveryDate;
@@ -9,11 +10,13 @@ class DeliveryEntity {
   final String status;
   final String phoneNumber;
   double ?markerHue;
+  final String ?deliveryObservation;
 
    List<ProductListEntity>? productList;
   
   DeliveryEntity({
-    required this.id,
+    required this.documentId,
+    required this.deliveryId,
     required this.address,
     required this.customerName, 
     required this.deliveryDate, 
@@ -22,6 +25,7 @@ class DeliveryEntity {
     required this.status,
     required this.phoneNumber,
     this.markerHue,
+    this.deliveryObservation,
     this.productList,
   });
 

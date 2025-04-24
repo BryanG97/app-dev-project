@@ -3,6 +3,12 @@ import 'package:flutter_meedu/meedu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DeliveryController extends SimpleNotifier {
+
+  String idCollection = "ORD123456";
+  String idDetaillCollection = "PR01";
+
+   bool _loading = false;
+
   List<DeliveryEntity> _deliveryList = [];
 
   List<DeliveryEntity> _selectedDeliveriesList = [];
@@ -12,10 +18,17 @@ class DeliveryController extends SimpleNotifier {
 
   List<DeliveryEntity>? get getSelectedDeliveryList => _selectedDeliveriesList;
 
+  bool get getLoading => _loading;
+
 
   //SETTERS
   set setDeliveryToList(DeliveryEntity delivery){
     _deliveryList.add(delivery);
+  }
+
+  set setLoading(bool value) {
+    _loading = value;
+    notify();
   }
 
   // Method to get firebase collection deliveries
@@ -24,14 +37,14 @@ class DeliveryController extends SimpleNotifier {
 
     try{
 
-      final itemsRef = FirebaseFirestore.instance.collection('ORD123456');
+      final itemsRef = FirebaseFirestore.instance.collection(idCollection);
       final snapshot = await itemsRef.get();
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
         
         //To read delivery products
-        final productSnapshot = await doc.reference.collection('PR01').get();
+        final productSnapshot = await doc.reference.collection(idDetaillCollection).get();
 
         final products = productSnapshot.docs.map((productDoc) {
           final productData = productDoc.data();
@@ -42,7 +55,8 @@ class DeliveryController extends SimpleNotifier {
         }).toList();
 
         final delivery = DeliveryEntity(
-          id: data['id'],
+          documentId: doc.id,
+          deliveryId: data['deliveryId'],
           address: data['address'],
           customerName: data['customerName']??"",
           deliveryDate: (data['deliveryDate'] as Timestamp).toDate(),
@@ -72,7 +86,7 @@ class DeliveryController extends SimpleNotifier {
   
   //Method to delete selected
   unselectMultipleDelivery(DeliveryEntity delivery){
-    _selectedDeliveriesList.removeWhere((d) => d.id == delivery.id);
+    _selectedDeliveriesList.removeWhere((d) => d.deliveryId == delivery.deliveryId);
     notify();
   }
   
@@ -91,4 +105,24 @@ class DeliveryController extends SimpleNotifier {
   deleteSimpleSelectedDeliveries(){
     _selectedDeliveriesList = [];
   }
-}
+
+  // Method to update firebase register
+  Future<void> updateFirebaseDelivery(DeliveryEntity delivery, String status ,String ?deliveryObservation) async {
+    setLoading = true;
+      try{
+
+        await FirebaseFirestore.instance
+          .collection(idCollection)
+          .doc(delivery.documentId)
+          .update({
+            'deliveryObservation': deliveryObservation,
+            'status': status,
+        });
+
+        setLoading = false;
+
+      }catch(e){
+        setLoading = false;
+      }
+    }
+  }

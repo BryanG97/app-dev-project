@@ -22,7 +22,10 @@ final appRouter = GoRouter(
       path: '/${MultipleDeliveryScreen.name}',
       name: MultipleDeliveryScreen.name,
       builder: (BuildContext context, GoRouterState state) {
-        return const MultipleDeliveryScreen();
+        final isOnlyView = state.extra as bool;
+        return MultipleDeliveryScreen(
+          isOnlyView: isOnlyView
+        );
       },
     ),
     
