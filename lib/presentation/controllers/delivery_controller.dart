@@ -64,7 +64,8 @@ class DeliveryController extends SimpleNotifier {
           longitude: data['longitude'],
           status: data['status'],
           phoneNumber: data['phoneNumber'],
-          productList: products
+          productList: products,
+          deliveryObservation: data['deliveryObservation']
           // Agrega aquí todos los campos que tenga tu `DeliveryEntity`
         );
 

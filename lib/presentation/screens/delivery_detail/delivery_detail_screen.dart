@@ -105,13 +105,15 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
 
-                    if(widget.delivery.status == "delivered")
+                    if(widget.delivery.status != "pending")
                       IconActionDeliveredDetail(
                         iconData: Icons.remove_red_eye_rounded,
                         active: true,
                         delivery: widget.delivery,
                       ),
+                    if(widget.delivery.status != "pending")
                       const SizedBox(width: 10),
+                    if(widget.delivery.status != "pending")
                       IconActionMapAddress(
                         iconData: Icons.location_on,
                         active: true,

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+
 class DeliveryProductScreen extends StatefulWidget {
   static const name = 'delivery-product-screen';
 
@@ -28,6 +29,25 @@ class _DeliveryProductState extends State<DeliveryProductScreen> {
   XFile? deliveryPhoto;
   TextEditingController? deliveryObservation = TextEditingController();
 
+  int? selectOption;
+  List<String> items = [
+    "Entregado",
+    "No entregado",
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Inicializa observaciones
+    deliveryObservation = TextEditingController(
+      text: widget.delivery.deliveryObservation ?? '',
+    );
+
+    // Inicializa radio button según el estado
+    selectOption = widget.delivery.status == "noDelivered" ? 1 : 0;
+  }
+
   getImageFromCamera() async{
     deliveryPhoto = await ImagePicker().pickImage(source: ImageSource.camera);
     setState(() {
@@ -37,6 +57,7 @@ class _DeliveryProductState extends State<DeliveryProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
       child: deliveryProvider.read.getLoading
       ? const Center(
@@ -57,92 +78,143 @@ class _DeliveryProductState extends State<DeliveryProductScreen> {
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         body: Padding(
           padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
-          child: Column(
-            children: [
-              Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.goNamed(DeliveryDetailScreen.name, extra: widget.delivery),
-                      icon: const Icon(Icons.arrow_back_ios),
-                    ),
-                    const Text(
-                      "Entrega",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-              ),
-
-              const SizedBox(height: 10),
-              const Text("Foto de entrega", 
-                style: TextStyle(
-                  fontSize: 15, 
-                  fontWeight: FontWeight.bold
-                )
-              ),
-
-              InkWell(
-                onTap:deliveryPhoto == null 
-                  ?(){
-                    getImageFromCamera();
-                } : null,
-                child: Stack(
-                  children: [
-                    Container(
-                      height: 220,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        color: Colors.grey[200],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => context.goNamed(DeliveryDetailScreen.name, extra: widget.delivery),
+                        icon: const Icon(Icons.arrow_back_ios),
                       ),
-                      child:deliveryPhoto == null
-                        ? Icon(Icons.camera_alt_outlined, size: 100, color: Colors.grey[400])
-                        : Image.file(
-                            File(deliveryPhoto!.path),
-                            width: 200,
-                            height: 200,
-                        ), 
-
-                    ),
-                    if (deliveryPhoto != null)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon: Icon(Icons.cancel, color: Theme.of(context).colorScheme.primary),
-                          onPressed: () {
-                            setState(() {
-                              deliveryPhoto = null;
-                            });
-                          },
-                        ),
+                      const Text(
+                        "Entrega",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-
-                  ],
+                    ],
                 ),
 
-              ),
+                SingleChildScrollView(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          Card(
+                            color: index == selectOption
+                                ? Theme.of(context).primaryColor
+                                : Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: RadioListTile(
+                              value: index,
+                              groupValue: selectOption,
+                              activeColor: Colors.white,
+                              onChanged: widget.delivery.status != "pending"
+                              ? null
+                              : (value) {
+                                setState(() {
+                                  selectOption = index;
+                                });
+                              },
+                              title: Text(
+                                items[index],
+                                style: TextStyle(
+                                  color: index == selectOption ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                        
+                    },
+                  ),
+                ),
 
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: TextFormField(
-                  controller: deliveryObservation,
-                  maxLength: 256,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    labelText: 'Observaciones',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18.0), // Define el radio de los bordes
+                const Divider(thickness: 2),
+                const SizedBox(height: 10),
+                const Text("Foto de evidencia", 
+                  style: TextStyle(
+                    fontSize: 15, 
+                    fontWeight: FontWeight.bold
+                  )
+                ),
+
+                InkWell(
+                  onTap:deliveryPhoto == null 
+                    ?(){
+                      getImageFromCamera();
+                  } : null,
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 220,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          color: Colors.grey[200],
+                        ),
+                        child:deliveryPhoto == null
+                          ? Icon(Icons.camera_alt_outlined, size: 100, color: Colors.grey[400])
+                          : Image.file(
+                              File(deliveryPhoto!.path),
+                              width: 200,
+                              height: 200,
+                          ), 
+
+                      ),
+                      if (deliveryPhoto != null)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.cancel, color: Theme.of(context).colorScheme.primary),
+                            onPressed: () {
+                              setState(() {
+                                deliveryPhoto = null;
+                              });
+                            },
+                          ),
+                        ),
+
+                    ],
+                  ),
+
+                ),
+
+                const SizedBox(height: 10),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: TextFormField(
+                    enabled: widget.delivery.status == "pending",
+                    controller: deliveryObservation,
+                    maxLength: 256,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      labelText: 'Observaciones',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18.0), // Define el radio de los bordes
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-            ],
+                
+
+              ],
+            ),
           ),
         ),
 
-        bottomNavigationBar: SizedBox(
+        bottomNavigationBar: 
+        widget.delivery.status == "pending"
+        ? SizedBox(
           height: 60,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 5),
@@ -159,13 +231,13 @@ class _DeliveryProductState extends State<DeliveryProductScreen> {
                     icon: Icons.warning_amber_rounded,
                     width: MediaQuery.of(context).size.width * 0.6,
                     color: AppColors.warningColor,
-                    text: 'Debe tomar una Foto de entrega.',
+                    text: 'Debe tomar una Foto de evidencia.',
                     radius: 20,
                   );
                   return;
                 }
                 
-                if(deliveryObservation == null){
+                if(deliveryObservation!.text.trim().isEmpty){
                   customToast(
                     seconds: 2,
                     context: context,
@@ -178,14 +250,22 @@ class _DeliveryProductState extends State<DeliveryProductScreen> {
                   return;
                 }
 
-                deliveryProvider.read.updateFirebaseDelivery(widget.delivery, "delivered", deliveryObservation!.text.trim());
+                var deliveryStatus = "";
+                if(selectOption == 0){
+                  deliveryStatus = "delivered";
+                }else{
+                  deliveryStatus = "noDelivered";
+                }
+
+                deliveryProvider.read.updateFirebaseDelivery(widget.delivery, deliveryStatus, deliveryObservation!.text.trim());
 
                 context.go('/');
               },
             ),
 
           ),
-        ),
+        )
+        : null,
 
       ),
     );
