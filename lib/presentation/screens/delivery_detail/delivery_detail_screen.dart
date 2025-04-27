@@ -74,7 +74,7 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
                     ),
 
                     Expanded(child: Container()),
-              Image.asset("assets/images/delivery_image.png", height: 40, width: 40),
+                    Image.asset("assets/images/delivery_image.png", height: 40, width: 40),
                   ],
               ),
 
@@ -89,7 +89,7 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
                         widget.delivery.customerName,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
-                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -203,22 +203,6 @@ class _DeliveryDetailState extends State<DeliveryDetailScreen> {
                       final product = widget.delivery.productList![index];
 
                       return InkWell(
-                        /* onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return DetailsChecklistPage(
-                                activeButtons: this.widget.isActivedButton!,
-                                index: index,
-                                indexArticle: index,
-                                indexContent: this.widget.indexContent!,
-                                contentEntity: this.widget.contentEntity,
-                                secuencialTransporteMercaderiaDetalle: article.secuencialTransporteMercaderiaDetalle!,
-                                secuencialConvenioDetalle: article.secuencialConvenioDetalle!,
-                              );
-                            },
-                          ),
-                        ), */
                         child: ProductCard(
                           productEntity: product,
                           index: index + 1,

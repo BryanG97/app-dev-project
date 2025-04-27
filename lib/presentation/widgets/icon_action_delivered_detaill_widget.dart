@@ -1,5 +1,6 @@
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/screens/delivery_product/delivery_product_screen.dart';
+import 'package:app_dev_project/presentation/screens/view_delivery/view_delivery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +25,7 @@ class IconActionDeliveredDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.goNamed(DeliveryProductScreen.name, extra: delivery);
+        context.goNamed(ViewDeliveryScreen.name, extra: delivery);
       },
       child: Container(
         height: size,

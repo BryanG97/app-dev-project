@@ -1,4 +1,5 @@
 import 'package:app_dev_project/presentation/screens/delivery_list/delivery_list_screen.dart';
+import 'package:app_dev_project/presentation/screens/driver_information/driver_information_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fluid_bottom_nav_bar/fluid_bottom_nav_bar.dart';
 
@@ -23,11 +24,10 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
           _child = const DeliveryListScreen();
           break;
         case 1:
-          //_child = const ProductAnalyticsScreen();
+          _child = const DriverInformationScreen();
           break;
 
         /* case 2:
-          //_scaffoldKey.currentState?.openDrawer();
           _child = const DrawerWidget2();
           break; */
       }
@@ -57,7 +57,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         defaultIndex: 0,
         icons: [
           FluidNavBarIcon(icon: Icons.list, selectedForegroundColor: Colors.white, extras: {"label": "list"}),
-          FluidNavBarIcon(icon: Icons.analytics_outlined, selectedForegroundColor: Colors.white, extras: {"label": "calendar"}),
+          //FluidNavBarIcon(icon: Icons.analytics_outlined, selectedForegroundColor: Colors.white, extras: {"label": "calendar"}),
           FluidNavBarIcon(icon: Icons.account_circle_outlined, selectedForegroundColor: Colors.white, extras: {"label": "userInfo"}),
         ],
       ),

@@ -1,17 +1,28 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:flutter_meedu/meedu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as path;
+import 'package:image/image.dart' as img;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class DeliveryController extends SimpleNotifier {
 
   String idCollection = "ORD123456";
   String idDetaillCollection = "PR01";
+  String firebaseStorageRefrence= "deliveries";
 
    bool _loading = false;
 
   List<DeliveryEntity> _deliveryList = [];
 
   List<DeliveryEntity> _selectedDeliveriesList = [];
+
+  String _deliveryImageUrl = "";
 
   //GETTERS
   List<DeliveryEntity>? get getDeliveryList => _deliveryList;
@@ -20,6 +31,7 @@ class DeliveryController extends SimpleNotifier {
 
   bool get getLoading => _loading;
 
+  String get getDeliveryImageUrl => _deliveryImageUrl;
 
   //SETTERS
   set setDeliveryToList(DeliveryEntity delivery){
@@ -29,6 +41,10 @@ class DeliveryController extends SimpleNotifier {
   set setLoading(bool value) {
     _loading = value;
     notify();
+  }
+  
+  set setDeliveryImageUrl(String url) {
+    _deliveryImageUrl = url;
   }
 
   // Method to get firebase collection deliveries
@@ -64,6 +80,7 @@ class DeliveryController extends SimpleNotifier {
           longitude: data['longitude'],
           status: data['status'],
           phoneNumber: data['phoneNumber'],
+          deliveryImageUrl: data['deliveryImageUrl'] ?? '',
           productList: products,
           deliveryObservation: data['deliveryObservation']
           // Agrega aquí todos los campos que tenga tu `DeliveryEntity`
@@ -108,22 +125,76 @@ class DeliveryController extends SimpleNotifier {
   }
 
   // Method to update firebase register
-  Future<void> updateFirebaseDelivery(DeliveryEntity delivery, String status ,String ?deliveryObservation) async {
+  Future<void> updateFirebaseDelivery(DeliveryEntity delivery, String status ,String ?deliveryObservation, XFile? deliveryPhoto) async {
     setLoading = true;
       try{
+
+        await uploadDeliveryPhoto(deliveryPhoto);
 
         await FirebaseFirestore.instance
           .collection(idCollection)
           .doc(delivery.documentId)
           .update({
             'deliveryObservation': deliveryObservation,
+            'deliveryImageUrl': _deliveryImageUrl,
             'status': status,
         });
 
         setLoading = false;
-
+        _selectedDeliveriesList = [];
       }catch(e){
         setLoading = false;
       }
+  }
+
+  //Method to compress file size
+  Future<Uint8List> compressList(Uint8List list) async {
+    var result = await FlutterImageCompress.compressWithList(list, quality: 40);
+    print('Imagen comprimida-----------');
+    return result;
+  }
+
+  //Method to upload firebase image
+  Future<void> uploadDeliveryPhoto(XFile? deliveryPhoto) async {
+
+    _deliveryImageUrl = "";
+    
+    if (deliveryPhoto == null) {
+      print('No hay foto-----------');
+      return;
+    }
+
+      try {
+      // Read image as bytes
+      File imageFile = File(deliveryPhoto.path);
+      Uint8List imageBytes = await imageFile.readAsBytes();
+
+      //Compress image
+      Uint8List compressedBytes = await compressList(imageBytes);
+
+      //Create store reference
+      String fileName = path.basename(deliveryPhoto.path);
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child(firebaseStorageRefrence)
+          .child(fileName);
+
+      //Upload image bytes
+      UploadTask uploadTask = storageRef.putData(
+        compressedBytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      //Get photo url
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      _deliveryImageUrl = downloadUrl;
+
+      print('URL de la foto subida: $downloadUrl');
+    } catch (e) {
+      print('Error al subir la foto: $e');
     }
   }
+
+}

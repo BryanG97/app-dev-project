@@ -179,7 +179,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
       body: SafeArea(
 
         child: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+          padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
 
           child: Column(
               children: [
@@ -201,6 +201,8 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                       'REGRESAR',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
+                    Expanded(child: Container()),
+                    Image.asset("assets/images/delivery_image.png", height: 40, width: 40),
                   ],
                 ),
 
@@ -208,7 +210,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                   //height: 410,
                   child: Text(
                     widget.isOnlyView? "Ubicación de entrega": "Ruta de entregas",
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                 ),
 
@@ -218,7 +220,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
                   height: widget.isOnlyView? 600 : 410,
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(
-                      target: start, // Latitud/longitud de ejemplo (Lima)
+                      target: start,
                       zoom: 12,
                     ),
                     markers: Set.from(_markers),
@@ -311,10 +313,10 @@ class DeliveryCard extends StatelessWidget {
         elevation: 2,
         child: Row(
           children: [
-            // Línea vertical a la izquierda
+            
             Container(
-              width: 12, // grosor de la franja
-              height: 71, // ajusta si necesitas más alto
+              width: 12,
+              height: 71,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: const BorderRadius.only(

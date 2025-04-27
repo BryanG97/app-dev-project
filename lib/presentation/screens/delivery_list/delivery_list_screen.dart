@@ -5,8 +5,7 @@ import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
 import 'package:go_router/go_router.dart';
-
-
+import 'package:intl/intl.dart';
 
 class DeliveryListScreen extends StatelessWidget {
   static const name = 'delivery-list-screen';
@@ -262,6 +261,11 @@ class DeliveryCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+
+                Text(
+                  DateFormat('dd-MM-yyyy HH:mm').format(deliveryEntity.deliveryDate),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
 
                 //deliveryEntity.status == "pending"?

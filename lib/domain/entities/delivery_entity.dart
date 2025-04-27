@@ -9,7 +9,8 @@ class DeliveryEntity {
   final String longitude;
   final String status;
   final String phoneNumber;
-  double ?markerHue;
+  final String? deliveryImageUrl;
+  double? markerHue;
   final String ?deliveryObservation;
 
    List<ProductListEntity>? productList;
@@ -24,6 +25,7 @@ class DeliveryEntity {
     required this.longitude,
     required this.status,
     required this.phoneNumber,
+    this.deliveryImageUrl,
     this.markerHue,
     this.deliveryObservation,
     this.productList,

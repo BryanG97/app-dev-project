@@ -15,12 +15,16 @@ dependencies:
   fluid_bottom_nav_bar: ^1.4.0
   firebase_core: ^2.27.0
   cloud_firestore: ^4.15.8
+  firebase_storage: ^11.6.9
   google_maps_flutter: ^2.5.3
   http: ^0.13.6
   flutter_polyline_points: ^1.0.0
   intl: ^0.18.1
   url_launcher: ^6.2.1
   image_picker: ^1.0.4
+  image: ^4.1.7
+  flutter_image_compress: ^2.1.0
+  firebase_auth: ^4.17.8
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -32,3 +36,10 @@ flutter:
   
   assets:
     - assets/images/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
