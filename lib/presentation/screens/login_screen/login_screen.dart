@@ -1,6 +1,7 @@
 import 'package:app_dev_project/config/theme/app_colors.dart';
 import 'package:app_dev_project/presentation/widgets/custom_bottom_navigation_bar.dart';
 import 'package:app_dev_project/presentation/widgets/custom_toast.dart';
+import 'package:app_dev_project/presentation/widgets/custom_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -54,24 +55,86 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar sesión')),
+      //backgroundColor: Color.fromARGB(54, 99, 242, 242),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                  width: 1,
+                ),
+              ),
+              child: CircleAvatar(
+                radius: 100,
+                backgroundImage: const AssetImage("assets/images/login_image.png"),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Green Route',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 0, 0, 0), // verde tipo Uber Eats
+                shadows: [
+                  Shadow(
+                    blurRadius: 5,
+                    color: Colors.black26,
+                    offset: Offset(2, 2),
+                  )
+                ]
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Correo electrónico'),
+              decoration: const InputDecoration(
+                labelText: 'Correo electrónico',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+              ),
               keyboardType: TextInputType.emailAddress,
             ),
+
+            const SizedBox(height: 20),
+
             TextField(
               controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+              ),
               obscureText: true,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed:() async{
+
+            CustomButton(
+              label: "Cerrar sesión",
+              fontSizeText: 17,
+              color: Theme.of(context).colorScheme.primary,
+              onTap:() async{
                 if( emailController.text.trim() == "" ){
                   customToast(
                     seconds: 3,
@@ -98,9 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
                   
                 _login();
-              } ,
-              child: const Text('Iniciar sesión'),
+              }
             ),
+
           ],
         ),
       ),
