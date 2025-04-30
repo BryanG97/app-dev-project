@@ -25,6 +25,7 @@ dependencies:
   image: ^4.1.7
   flutter_image_compress: ^2.1.0
   firebase_auth: ^4.17.8
+  geolocator: ^11.1.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

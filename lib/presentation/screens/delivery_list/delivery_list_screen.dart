@@ -4,6 +4,7 @@ import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_de
 import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -38,6 +39,7 @@ class _DeliveryListState extends State<DeliveryList> {
   void initState() {
     super.initState();
     _deliveriesFuture = deliveryProvider.read.getFirebaseDeliveries();
+    deliveryProvider.read.getGpsLocation();
   }
 
   @override
@@ -83,7 +85,8 @@ class _DeliveryListState extends State<DeliveryList> {
                             final selectedCount = data.getSelectedDeliveryList?.length ?? 0;
                           
                             return GestureDetector(
-                              onTap: (){
+                              onTap: () async {
+                                await Geolocator.checkPermission();
                                 if(selectedCount > 0){
                                   context.goNamed(MultipleDeliveryScreen.name, extra: false);
                                 }
@@ -154,7 +157,9 @@ class _DeliveryListState extends State<DeliveryList> {
                                 //deliveryProvider.read.deleteSelectedDeliveries();
 
                                 return InkWell(
-                                  onTap: (){
+                                  onTap: () async {
+                                    await Geolocator.checkPermission();
+
                                     if (!multipleSelection) {
                                         deliveryProvider.read.deleteSimpleSelectedDeliveries();
                                         deliveryProvider.read.selectSimpleDelivery(delivery);
@@ -237,11 +242,11 @@ class DeliveryCard extends StatelessWidget {
           child: ListTile(
             
             leading: SizedBox(
-              height: 200,
+              height: 100,
               child: Column(
                 children: [
                   Flexible(
-                    child: Image.asset("assets/images/delivery_image.png", height: 100, width: 100),
+                    child: Image.asset("assets/images/delivery_image.png", height: 80, width: 80),
                   ),
                 ],
               ),
@@ -263,6 +268,7 @@ class DeliveryCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
 
+                
                 Text(
                   DateFormat('dd-MM-yyyy HH:mm').format(deliveryEntity.deliveryDate),
                   style: const TextStyle(fontSize: 13, color: Colors.grey),

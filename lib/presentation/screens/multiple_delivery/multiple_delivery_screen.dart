@@ -1,13 +1,16 @@
+import 'package:app_dev_project/config/theme/app_colors.dart';
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
 import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_detail_screen.dart';
 import 'package:app_dev_project/presentation/widgets/custom_bottom_navigation_bar.dart';
+import 'package:app_dev_project/presentation/widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MultipleDeliveryScreen extends StatelessWidget {
   static const name = 'multiple-delivery-screen';
@@ -52,8 +55,9 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
   final List<Marker> _markers = [];
   late BitmapDescriptor _customInitMarker;
 
-  final LatLng start = LatLng(-0.257338, -78.530707);
-  final LatLng end = LatLng(-0.230000, -78.520000);
+  //late final LatLng start = LatLng(-0.257338, -78.530707);
+  late final LatLng start;
+  late final LatLng end;
 
   @override
   void initState() {
@@ -62,6 +66,8 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
   }
   
   void _initializeMapElements() async {
+    start = deliveryProvider.read.getCurrentLocation;
+    await _getEndPoint();
     await _loadCustomIcons();
 
     if(!widget.isOnlyView){
@@ -69,6 +75,38 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
     }
   }
 
+  
+
+  //Method to customize point icons
+  Future<void> _getEndPoint() async {
+    var deliveryList = deliveryProvider.read.getSelectedDeliveryList;
+    if (deliveryList == null || deliveryList.isEmpty) return;
+
+    double maxDistance = 0;
+    var farthestPoint = deliveryList.first;
+
+    for (var point in deliveryList) {
+      double distanceInMeters = Geolocator.distanceBetween(
+        start.latitude,
+        start.longitude,
+        double.parse(point.latitude),
+        double.parse(point.longitude),
+      );
+
+      if (distanceInMeters > maxDistance) {
+        maxDistance = distanceInMeters;
+        farthestPoint = point;
+      }
+    }
+
+    end = LatLng(
+      double.parse(farthestPoint.latitude),
+      double.parse(farthestPoint.longitude),
+    );
+    
+  }
+
+  //Method to customize point icons
   Future<void> _loadCustomIcons() async {
     if(!widget.isOnlyView){
       _customInitMarker = await BitmapDescriptor.fromAssetImage(
@@ -148,9 +186,11 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
       PointLatLng(end.latitude, end.longitude),
       travelMode: TravelMode.driving,
       wayPoints: waypoints,
+      optimizeWaypoints: true,
     );
 
     if (result.points.isNotEmpty) {
+      
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }

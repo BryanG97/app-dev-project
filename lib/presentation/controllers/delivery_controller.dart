@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:flutter_meedu/meedu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as path;
@@ -24,6 +26,8 @@ class DeliveryController extends SimpleNotifier {
 
   String _deliveryImageUrl = "";
 
+  LatLng _currentLocation = const LatLng(0,0);
+
   //GETTERS
   List<DeliveryEntity>? get getDeliveryList => _deliveryList;
 
@@ -32,6 +36,8 @@ class DeliveryController extends SimpleNotifier {
   bool get getLoading => _loading;
 
   String get getDeliveryImageUrl => _deliveryImageUrl;
+
+  LatLng get getCurrentLocation => _currentLocation;
 
   //SETTERS
   set setDeliveryToList(DeliveryEntity delivery){
@@ -45,6 +51,10 @@ class DeliveryController extends SimpleNotifier {
   
   set setDeliveryImageUrl(String url) {
     _deliveryImageUrl = url;
+  }
+  
+  set setCurrentLocation(LatLng location) {
+    _currentLocation = location;
   }
 
   // Method to get firebase collection deliveries
@@ -195,6 +205,34 @@ class DeliveryController extends SimpleNotifier {
     } catch (e) {
       print('Error al subir la foto: $e');
     }
+  }
+
+  //Method to get current location
+  Future<void> getGpsLocation() async {
+    bool isActiveGeolocation;
+    LocationPermission permission;
+
+    isActiveGeolocation = await Geolocator.isLocationServiceEnabled();
+    if (!isActiveGeolocation) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+        }
+    }
+
+    Position currentLocation = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    _currentLocation = LatLng(
+      double.parse(currentLocation.latitude.toString()),
+      double.parse(currentLocation.longitude.toString()),
+    );
+
   }
 
 }
