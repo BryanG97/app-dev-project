@@ -86,7 +86,6 @@ class _DeliveryListState extends State<DeliveryList> {
                           
                             return GestureDetector(
                               onTap: () async {
-                                await Geolocator.checkPermission();
                                 if(selectedCount > 0){
                                   context.goNamed(MultipleDeliveryScreen.name, extra: false);
                                 }
@@ -158,7 +157,6 @@ class _DeliveryListState extends State<DeliveryList> {
 
                                 return InkWell(
                                   onTap: () async {
-                                    await Geolocator.checkPermission();
 
                                     if (!multipleSelection) {
                                         deliveryProvider.read.deleteSimpleSelectedDeliveries();

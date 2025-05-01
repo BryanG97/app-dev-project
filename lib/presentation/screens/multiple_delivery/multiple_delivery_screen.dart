@@ -1,9 +1,7 @@
-import 'package:app_dev_project/config/theme/app_colors.dart';
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
 import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_detail_screen.dart';
 import 'package:app_dev_project/presentation/widgets/custom_bottom_navigation_bar.dart';
-import 'package:app_dev_project/presentation/widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu/ui.dart';
 import 'package:go_router/go_router.dart';
@@ -108,12 +106,12 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
 
   //Method to customize point icons
   Future<void> _loadCustomIcons() async {
-    if(!widget.isOnlyView){
+    /* if(!widget.isOnlyView){
       _customInitMarker = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(size: Size(48, 48)), 
         'assets/images/driver_mark.png',
       );
-    }
+    } */
 
     setState(() {
       _markers.clear();
@@ -138,7 +136,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
       }
 
       //Init point
-      if(!widget.isOnlyView){
+      /* if(!widget.isOnlyView){
         _markers.add(
           Marker(
             markerId: MarkerId(start.toString()),
@@ -146,7 +144,7 @@ class _MultipleDeliveryState extends State<MultipleDelivery> {
             position: start
           ),
         );
-      }
+      } */
       
       for(int i = 0; i < deliveryList.length; i++){
         final LatLng position = LatLng(double.parse(deliveryList[i].latitude), double.parse(deliveryList[i].longitude));

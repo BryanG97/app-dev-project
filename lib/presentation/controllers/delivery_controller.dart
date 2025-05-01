@@ -151,7 +151,7 @@ class DeliveryController extends SimpleNotifier {
         });
 
         setLoading = false;
-        _selectedDeliveriesList = [];
+        unselectMultipleDelivery(delivery);
       }catch(e){
         setLoading = false;
       }

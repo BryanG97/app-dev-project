@@ -4,6 +4,7 @@ import 'package:app_dev_project/config/theme/app_colors.dart';
 import 'package:app_dev_project/domain/entities/delivery_entity.dart';
 import 'package:app_dev_project/presentation/providers/delivery_provider.dart';
 import 'package:app_dev_project/presentation/screens/delivery_detail/delivery_detail_screen.dart';
+import 'package:app_dev_project/presentation/screens/multiple_delivery/multiple_delivery_screen.dart';
 import 'package:app_dev_project/presentation/widgets/custom_button.dart';
 import 'package:app_dev_project/presentation/widgets/custom_toast.dart';
 import 'package:app_dev_project/presentation/widgets/loandig_delivery.dart';
@@ -270,8 +271,20 @@ class _DeliveryProductState extends State<DeliveryProductScreen> {
 
                     await deliveryProvider.read.updateFirebaseDelivery(widget.delivery, deliveryStatus, deliveryObservation!.text.trim(), deliveryPhoto);
 
-                    //await Future.delayed(const Duration(seconds: 2));
-                    context.go('/');
+                    var deliveryCount;
+
+                    if(deliveryProvider.read.getSelectedDeliveryList == null){
+                      deliveryCount = 0;
+                    }else{
+                      deliveryCount = deliveryProvider.read.getSelectedDeliveryList!.length;
+                    }
+
+                    if(deliveryCount > 0){
+                      context.goNamed(MultipleDeliveryScreen.name, extra: false);
+                    }else{
+                      context.go('/');
+                    }
+
                   },
                 ),
 
