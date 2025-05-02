@@ -11,6 +11,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DeliveryController extends SimpleNotifier {
 
@@ -63,7 +64,14 @@ class DeliveryController extends SimpleNotifier {
 
     try{
 
-      final itemsRef = FirebaseFirestore.instance.collection(idCollection);
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) return; 
+
+      final itemsRef = FirebaseFirestore.instance
+        .collection(idCollection)
+        .where('driverId', isEqualTo: user.uid);
+
       final snapshot = await itemsRef.get();
 
       for (var doc in snapshot.docs) {

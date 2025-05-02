@@ -58,11 +58,11 @@ class _DriverInformationScreenState extends State<DriverInformationScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
                     ),
-                    Text(
+                    /* Text(
                       user!.uid??'',
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-                    ),
+                    ), */
 
                     const SizedBox(height: 20),
 
